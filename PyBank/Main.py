@@ -1,77 +1,67 @@
-# In this challenge, you are tasked with creating a Python script for analyzing the financial records of your company. You will give a set of financial data called budget_data.csv. The dataset is composed of two columns: Date and Profit/Losses. (Thankfully, your company has rather lax standards for accounting so the records are simple.)
-# Your task is to create a Python script that analyzes the records to calculate each of the following:
-
-# As an example, your analysis should look similar to the one below:
-# Financial Analysis
-# ----------------------------
-# Total Months: 86
-# Total: $38382578
-# Average  Change: $-2315.12
-# Greatest Increase in Profits: Feb-2012 ($1926159)
-# Greatest Decrease in Profits: Sep-2013 ($-2196167)
-
-# In addition, your final script should both print the analysis to the terminal and export a text file with the results.
-
 import os
 import csv
 import locale
 
+# import currency formatting settings
 from numpy.lib.function_base import select
-
+from numpy.lib.histograms import _histogram_dispatcher
 locale.setlocale(locale.LC_ALL,'en_US')
 
 # Locate and open CSV file
-csvpath = os.path.join("Resources","budget_data.csv")
+csvpath = os.path.join("budget_data.csv")
 csvfile = open(csvpath,'r')
 budget = csv.reader(csvfile)
 
-#remove heade3rs
+#remove headers
 csv_header = next(budget)
 
-#create lists
+# create lists and variables
 month = []
 data = []
-months = []
-datas = []
+total = 0
+count = 0
+maxrow = None
+minrow = None
 
-#append column info into lists
+#start for loop
 for row in budget:
     month = str(row[0])
     data = int(row[1])
-    
-    months.append(month)
-    datas.append(data)
-    
- # The total number of months included in the dataset
-count = len(months)
 
-print(count)
+#identify max and min while iterating
+    if maxrow == None:
+        maxrow = row
+    elif int(maxrow[1]) < data:
+        maxrow = row
 
-# The net total amount of "Profit/Losses" over the entire period
-total = sum(datas)
+    if minrow == None:
+        minrow = row
+    elif int(minrow[1]) > data:
+        minrow = row
 
-print(locale.currency(total, grouping = True))
+# running total and count per row
+    total = total + data
+    count = count + 1
 
-# Identify min and max of "Profit/Losses", calculate average and difference
+# maths
+totalprofit = locale.currency(total, grouping = True)
+average = total / count
+average_formatted = locale.currency(average, grouping = True)
+minprofit = locale.currency(int(minrow[1]), grouping = True)
+minname = str(minrow[0])
+maxprofit = locale.currency(int(maxrow[1]), grouping = True)
+maxname = str(maxrow[0])
 
-lowest_amt = min(datas)
-highest_amt = max(datas)
+#set complete message, with formatting, including top and bottom spacing
+message = f"""
+ 
+Financial Analysis
+-------------------
+Total Months: {count}
+Total: {totalprofit}
+Average Change: {average_formatted}
+Greatest Increase in Profits: {maxname}, {maxprofit}
+Greatest Decrease in Profits: {minname}, {minprofit}
 
-# print(lowest_amt)
-# print (highest_amt)
-
-difference = highest_amt - lowest_amt
-average = total/count
-
-print(locale.currency(difference, grouping = True))
-print(locale.currency(average, grouping = True))
-
-# The greatest increase in profits (date and amount) over the entire period
-print(locale.currency(highest_amt, grouping = True))
-if highest_amt == row[0]:
-        highest_date(row)
-
-print(highest_date)
-
-# The greatest decrease in profits (date and amount) over the entire period
-print(locale.currency(lowest_amt, grouping = True))
+"""
+print(message)
