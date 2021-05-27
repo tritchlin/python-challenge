@@ -8,7 +8,7 @@ from numpy.lib.histograms import _histogram_dispatcher
 locale.setlocale(locale.LC_ALL,'en_US')
 
 # Locate and open CSV file
-csvpath = os.path.join("budget_data.csv")
+csvpath = os.path.join("Resources","budget_data.csv")
 csvfile = open(csvpath,'r')
 budget = csv.reader(csvfile)
 
