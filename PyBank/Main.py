@@ -7,6 +7,7 @@ from numpy.lib.function_base import select
 from numpy.lib.histograms import _histogram_dispatcher
 locale.setlocale(locale.LC_ALL,'en_US')
 
+
 # Locate and open CSV file
 csvpath = os.path.join("Resources","budget_data.csv")
 csvfile = open(csvpath,'r')
@@ -65,3 +66,9 @@ Greatest Decrease in Profits: {minname}, {minprofit}
 
 """
 print(message)
+
+output_path = os.path.join("Analysis","output.txt")
+
+f = open(output_path,"w")
+f.write(message)
+f.close()
