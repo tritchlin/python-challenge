@@ -1,5 +1,5 @@
 # python-challenge
-**Week 3 Python HW for UCSD Data Bootcamp**
+## **Week 3 Python HW for UCSD Data Bootcamp**
 
 Script files: PyBank/Main.py and PyPoll/Main.py
 
