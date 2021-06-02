@@ -44,6 +44,8 @@ with open(csvpath,'r') as csvfile:
             change.append(delta)
             date.append(str(row[0]))
             previous_value = int(row[1])
+        
+        # Tracking running totals for number of months, total from P&L column
         total = total + data
         count = count + 1
 
@@ -72,6 +74,7 @@ Greatest Decrease in Profits: {mindate} ({minprofit})
 """
 print(message)
 
+# Create and write results to text file in Analysis folder
 output_path = os.path.join("Analysis","output.txt")
 
 f = open(output_path,"w")
