@@ -2,67 +2,72 @@ import os
 import csv
 import locale
 
-# import currency formatting settings
-from numpy.lib.function_base import select
-from numpy.lib.histograms import _histogram_dispatcher
+# Set number and currency formatting
 locale.setlocale(locale.LC_ALL,'en_US')
-
+locale._override_localeconv = {"n_sign_posn": 3}
 
 # Locate and open CSV file
-csvpath = os.path.join("Resources","budget_data.csv")
-csvfile = open(csvpath,'r')
-budget = csv.reader(csvfile)
+csvpath = os.path.join(".","Resources","budget_data.csv")
 
-#remove headers
-csv_header = next(budget)
-
-# create lists and variables
+# Create lists and variables
 month = []
 data = []
 total = 0
 count = 0
-maxrow = None
-minrow = None
+date = []
+change = []
+collate = {}
 
-#start for loop
-for row in budget:
-    month = str(row[0])
-    data = int(row[1])
+# Open CSV file
+with open(csvpath,'r') as csvfile:
+    budget = csv.reader(csvfile)
 
-#identify max and min while iterating
-    if maxrow == None:
-        maxrow = row
-    elif int(maxrow[1]) < data:
-        maxrow = row
+    csv_header = next(budget)
+    
+    # Begin for loop
+    for row in budget:
+        month = str(row[0])
+        data = int(row[1])
+        
+        # If/else to create list of profit/loss deltas and corresponding months
+        if count == 0:
+            firstvalue = int(row[1])
+        elif count == 1:
+            current_value = int(row[1])
+            delta = current_value - firstvalue
+            change.append(delta)
+            date.append(str(row[0]))
+            previous_value = int(row[1])
+        else:
+            current_value = int(row[1])
+            delta = current_value - previous_value
+            change.append(delta)
+            date.append(str(row[0]))
+            previous_value = int(row[1])
+        total = total + data
+        count = count + 1
 
-    if minrow == None:
-        minrow = row
-    elif int(minrow[1]) > data:
-        minrow = row
+# Create dictionary with deltas and months for calculations
+collate = dict(zip(date, change))
+maxdate = max(collate, key = collate.get)
+mindate = min(collate, key = collate.get)
 
-# running total and count per row
-    total = total + data
-    count = count + 1
-
-# maths
+# Additional maths and finalized formatting
 totalprofit = locale.currency(total, grouping = True)
-average = total / count
-average_formatted = locale.currency(average, grouping = True)
-minprofit = locale.currency(int(minrow[1]), grouping = True)
-minname = str(minrow[0])
-maxprofit = locale.currency(int(maxrow[1]), grouping = True)
-maxname = str(maxrow[0])
+deltaaverage = locale.currency((sum(change) / len(change)), grouping = True)
+minprofit = locale.currency(int(min(change)), grouping = True)
+maxprofit = locale.currency(int(max(change)), grouping = True)
 
-#set complete message, with formatting, including top and bottom spacing
+# Set complete message, with formatting, including top and bottom spacing
 message = f"""
  
 Financial Analysis
 -------------------
 Total Months: {count}
 Total: {totalprofit}
-Average Change: {average_formatted}
-Greatest Increase in Profits: {maxname}, {maxprofit}
-Greatest Decrease in Profits: {minname}, {minprofit}
+Average Change: {deltaaverage}
+Greatest Increase in Profits: {maxdate} ({maxprofit})
+Greatest Decrease in Profits: {mindate} ({minprofit})
 
 """
 print(message)
